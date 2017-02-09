@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">MapApp</string>
+    <string name="title_activity_maps">Map</string>
+
+    // information about data base
+    <string name="data_base_name">devices.db</string>
+    <integer name="data_base_version">1</integer>
+
+    // table with information about ATM
+    <string name="TABLE_NAME">ATM_Privat_Ukraine</string>
+    <string name="KEY_CITY_COLUMN">CITY</string>
+    <string name="LATITUDE_COLUMN">LATITUDE</string>
+    <string name="LONGITUDE_COLUMN">LONGITUDE</string>
+    <string name="DATA_STRING_COLUMN">JSONString</string>
+    <string name="TIME_UPDATE_COLUMN">TIME_OF_UPDATE</string>
+
+</resources>
