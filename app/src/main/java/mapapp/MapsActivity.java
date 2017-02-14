@@ -237,7 +237,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         if (addresses.get(0).getLocality() != null && !addresses.get(0).getLocality().equals(city)){
                             city = addresses.get(0).getLocality();
                             takeDataTask = new TakeDataTask(getApplicationContext(), this);
-                            takeDataTask.execute(nameCreator.takeCitName(addresses.get(0).getLocality()));
+                            takeDataTask.execute(nameCreator.takeCityName(addresses.get(0).getLocality()));
                         } else {
                             clusterManager.cluster();
                         }

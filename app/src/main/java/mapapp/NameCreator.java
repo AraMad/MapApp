@@ -95,7 +95,7 @@ public class NameCreator {
         return transliteratedString.toString();
     }
 
-    public String takeCitName(String name){
+    public String takeCityName(String name){
 
         if (name.charAt(0) <= 127 && name.charAt(0) >= 0){
             if (name.equals("Kiev")){
