@@ -51,6 +51,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private TakeDataTask takeDataTask;
     private ConnectivityManager connectivityManager;
     private NetworkInfo activeNetwork;
+    private FragmentManager manager;
     private String city = "city";
 
     @Override
@@ -76,14 +77,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
+        manager = getSupportFragmentManager();
+
         setUpLocationListener();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-
-        FragmentManager manager = getSupportFragmentManager();
 
         activeNetwork = connectivityManager.getActiveNetworkInfo();
         if (activeNetwork == null || !activeNetwork.isConnected()){
@@ -92,15 +93,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     this.getString(R.string.fragment_title),
                     this.getString(R.string.fragment_text_internet));
             internetDialogFragment.show(manager, this.getString(R.string.fragment_internet_tag));
-        }
-
-
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-            OwnDialogFragment gpsDialogFragment = new OwnDialogFragment();
-            gpsDialogFragment.setTitleAndMessage(
-                    this.getString(R.string.fragment_title),
-                    this.getString(R.string.fragment_text_gps));
-            gpsDialogFragment.show(manager, this.getString(R.string.fragment_gps_tag));
         }
 
         mGoogleApiClient.connect();
@@ -150,6 +142,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         setUpClusterer(mMap);
         mMap.setOnCameraIdleListener(this);
+
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            OwnDialogFragment gpsDialogFragment = new OwnDialogFragment();
+            gpsDialogFragment.setTitleAndMessage(
+                    this.getString(R.string.fragment_title),
+                    this.getString(R.string.fragment_text_gps));
+            gpsDialogFragment.show(manager, this.getString(R.string.fragment_gps_tag));
+        }
 
         try{
             LatLng last_location = new LatLng(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLatitude(),
