@@ -89,18 +89,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (activeNetwork == null || !activeNetwork.isConnected()){
             OwnDialogFragment internetDialogFragment = new OwnDialogFragment();
             internetDialogFragment.setTitleAndMessage(
-                    "Important!",
-                    "App will not work without Internet.\nPlease, turn on Internet.");
-            internetDialogFragment.show(manager, "internet_dialog");
+                    this.getString(R.string.fragment_title),
+                    this.getString(R.string.fragment_text_internet));
+            internetDialogFragment.show(manager, this.getString(R.string.fragment_internet_tag));
         }
 
 
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
             OwnDialogFragment gpsDialogFragment = new OwnDialogFragment();
             gpsDialogFragment.setTitleAndMessage(
-                    "Important!",
-                    "If you want to update map for your location automatically\nplease, turn on GPS.");
-            gpsDialogFragment.show(manager, "gps_dialog");
+                    this.getString(R.string.fragment_title),
+                    this.getString(R.string.fragment_text_gps));
+            gpsDialogFragment.show(manager, this.getString(R.string.fragment_gps_tag));
         }
 
         mGoogleApiClient.connect();
@@ -225,11 +225,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         activeNetwork = connectivityManager.getActiveNetworkInfo();
         if (activeNetwork != null && activeNetwork.isConnected()){
 
-            Geocoder geoCoder = new Geocoder(getBaseContext(), new Locale("in"));
+            Geocoder geoCoder =
+                    new Geocoder(getBaseContext(), new Locale(this.getString(R.string.locale)));
 
             if (Geocoder.isPresent()){
                 try {
-                    List<Address> addresses = geoCoder.getFromLocation(cameraPosition.target.latitude, cameraPosition.target.longitude, 5);
+                    List<Address> addresses = geoCoder
+                            .getFromLocation(cameraPosition.target.latitude,
+                                    cameraPosition.target.longitude, 5);
                     try {
                         if (addresses.get(0).getLocality() != null && !addresses.get(0).getLocality().equals(city)){
                             city = addresses.get(0).getLocality();
@@ -247,7 +250,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         } else {
-            Toast.makeText(this, "No Internet connection", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, this.getString(R.string.toast_internet_text), Toast.LENGTH_SHORT)
+                    .show();
         }
     }
 
