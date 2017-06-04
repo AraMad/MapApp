@@ -1,4 +1,4 @@
-package mapapp;
+package mapapp.managers;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -7,21 +7,29 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.example.arina.mapapp.R;
+import mapapp.R;
+
+import static mapapp.settings.Constants.DATABASE_CREATE_COMMAND;
+import static mapapp.settings.Constants.DATABASE_NAME;
+import static mapapp.settings.Constants.DATABASE_VERSION;
+import static mapapp.settings.Constants.DATA_STRING_COLUMN;
+import static mapapp.settings.Constants.KEY_CITY_COLUMN;
+import static mapapp.settings.Constants.TABLE_NAME;
+import static mapapp.settings.Constants.TIME_UPDATE_COLUMN;
 
 /**
- * Created by Arina on 06.01.2017.
+ * Created by Arina on 06.01.2017
  */
 
 public class DataBaseManager {
 
-    private static final String TAG = "MapApp_log";
+    private final String TAG = getClass().getSimpleName();
 
     private final Context applicationContext;
     private DataBaseHelper dataBaseHelper;
     private SQLiteDatabase dataBase;
 
-    DataBaseManager(Context context){
+    public DataBaseManager(Context context){
         applicationContext = context;
         dataBaseHelper = new DataBaseHelper(applicationContext);
     }
@@ -52,12 +60,13 @@ public class DataBaseManager {
         Cursor cursor;
 
         try {
-            cursor = dataBase.query(applicationContext.getString(R.string.TABLE_NAME),
-                    new String[] {applicationContext.getString(R.string.DATA_STRING_COLUMN)},
-                    applicationContext.getString(R.string.KEY_CITY_COLUMN) + " = '" + city + "'",
+            cursor = dataBase.query(TABLE_NAME,
+                    new String[] {DATA_STRING_COLUMN},
+                    KEY_CITY_COLUMN + " = '" + city + "'",
                     null, null, null, null);
             cursor.moveToFirst();
-            String JSON_string = cursor.getString(cursor.getColumnIndexOrThrow(applicationContext.getString(R.string.DATA_STRING_COLUMN)));
+            String JSON_string = cursor.getString(cursor.getColumnIndexOrThrow(
+                    DATA_STRING_COLUMN));
             cursor.close();
             return JSON_string;
         } catch (Exception e){
@@ -70,29 +79,22 @@ public class DataBaseManager {
     public void addNewRowToBase(String city, String data_string) {
 
         try {
-            dataBase.execSQL("INSERT INTO " + applicationContext.getString(R.string.TABLE_NAME)
-                    + " (" + applicationContext.getString(R.string.KEY_CITY_COLUMN) +", "
-                    + applicationContext.getString(R.string.DATA_STRING_COLUMN) + ", "
-                    + applicationContext.getString(R.string.TIME_UPDATE_COLUMN) + ") VALUES ("
+            dataBase.execSQL("INSERT INTO " + TABLE_NAME
+                    + " (" + KEY_CITY_COLUMN +", "
+                    + DATA_STRING_COLUMN + ", "
+                    + TIME_UPDATE_COLUMN + ") VALUES ("
                     + "'" + city + "'" + ", '" + data_string + "', " + System.currentTimeMillis() + ");");
         } catch (Exception e){
             Log.i(TAG, e.toString());
+            e.printStackTrace();
         }
 
     }
 
     private class DataBaseHelper extends SQLiteOpenHelper {
 
-        private final String DATABASE_CREATE_COMMAND;
-
         public DataBaseHelper(Context context) {
-            super(context, context.getString(R.string.data_base_name), null, context.getResources().getInteger(R.integer.data_base_version));
-
-            DATABASE_CREATE_COMMAND = "CREATE TABLE " + context.getString(R.string.TABLE_NAME)
-                    + " (_id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + context.getString(R.string.KEY_CITY_COLUMN) + " TEXT NOT NULL, "
-                    + context.getString(R.string.DATA_STRING_COLUMN) + " TEXT, "
-                    + context.getString(R.string.TIME_UPDATE_COLUMN) + " NUMERIC);";
+            super(context, DATABASE_NAME, null, DATABASE_VERSION);
         }
 
         @Override

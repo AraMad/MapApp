@@ -2,27 +2,17 @@
     <string name="app_name">MapApp</string>
     <string name="title_activity_maps">Map</string>
 
-    // information about data base
-    <string name="data_base_name">devices.db</string>
-    <integer name="data_base_version">1</integer>
-
-    // table with information about ATM
-    <string name="TABLE_NAME">ATM_Privat_Ukraine</string>
-    <string name="KEY_CITY_COLUMN">CITY</string>
-    <string name="DATA_STRING_COLUMN">JSONString</string>
-    <string name="TIME_UPDATE_COLUMN">TIME_OF_UPDATE</string>
-
-    // resources for dialog fragments
-    <string name="fragment_button_title">Ok</string>
-    <string name="fragment_title">Important!</string>
-    <string name="fragment_text_internet">App will not work without Internet.
-        Please, turn on Internet.</string>
-    <string name="fragment_text_gps">If you want to update map for your location automatically
+    <string name="fragment_gps_title">Important!</string>
+    <string name="fragment_gps_positive_button_title">OK</string>
+    <string name="fragment_gps_negative_button_title">Cancel</string>
+    <string name="fragment_gps_text">If you want to update map for your location automatically
         please, turn on GPS.</string>
-    <string name="fragment_internet_tag">internet_dialog</string>
-    <string name="fragment_gps_tag">gps_dialog</string>
 
-    <string name="locale">in</string>
+    <string name="snackbar_button_text">SETTINGS</string>
+    <string name="snackbar_permission_text">Location permission needed for update map automatically</string>
+
+    <string name="snackbar_internet_text">App will not work without Internet.
+        Please, turn on Internet.</string>
 
     <string name="toast_internet_text">No Internet connection</string>
 

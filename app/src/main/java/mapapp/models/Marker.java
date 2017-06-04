@@ -1,10 +1,10 @@
-package mapapp;
+package mapapp.models;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
 /**
- * Created by Arina on 28.12.2016.
+ * Created by Arina on 28.12.2016
  */
 
 public class Marker implements ClusterItem {

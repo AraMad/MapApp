@@ -1,10 +1,10 @@
-package mapapp;
+package mapapp.utils;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Arina on 01.02.2017.
+ * Created by Arina on 01.02.2017
  */
 
 public class NameCreator {
