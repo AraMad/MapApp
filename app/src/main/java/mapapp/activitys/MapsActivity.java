@@ -12,12 +12,14 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 
+import android.os.Message;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -36,21 +38,25 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import mapapp.interfaces.TaskCompleteListener;
 import mapapp.models.City;
 import mapapp.models.Marker;
+import mapapp.providers.TakeMarkersInfo;
+import mapapp.singletons.MainHandler;
 import mapapp.utils.NameCreator;
 import mapapp.utils.OwnDialogFragment;
 import mapapp.utils.OwnRendered;
 import mapapp.R;
 import mapapp.providers.TakeDataTask;
 
+import static mapapp.BuildConfig.DEBUG;
 import static mapapp.settings.Constants.FRAGMENT_GPS_TAG;
 import static mapapp.settings.Constants.LATLNG_ZOOM;
 import static mapapp.settings.Constants.LOCALE;
 import static mapapp.settings.Constants.SNACKBAR_DURATION;
 
 public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback,
-        TakeDataTask.TaskCompleteListener, GoogleMap.OnCameraIdleListener {
+        TaskCompleteListener, GoogleMap.OnCameraIdleListener {
 
     private final String TAG = getClass().getSimpleName();
 
@@ -60,6 +66,7 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
     private ClusterManager<Marker> clusterManager;
     private LocationManager locationManager;
     private TakeDataTask takeDataTask;
+    private TakeMarkersInfo takeInfo;
     private ConnectivityManager connectivityManager;
     private NetworkInfo activeNetwork;
     private FragmentManager manager;
@@ -155,8 +162,12 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
                         if (addresses.get(0).getLocality() != null && !addresses.get(0).getLocality().equals(city)){
                             city = addresses.get(0).getLocality();
 
-                            takeDataTask = new TakeDataTask(this);
-                            takeDataTask.execute(nameCreator.takeCityName(addresses.get(0).getLocality()));
+                            //takeDataTask = new TakeDataTask(this);
+                            //takeDataTask.execute(nameCreator.takeCityName(addresses.get(0).getLocality()));
+
+                            takeInfo = new TakeMarkersInfo(this, nameCreator
+                                    .takeCityName(addresses.get(0).getLocality()));
+                            takeInfo.start();
 
                         } else {
                             clusterManager.cluster();
@@ -175,7 +186,7 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
         }
     }
 
-    @Override
+    /*@Override
     public void onTaskCompleteCallBack(String result) {
 
         clusterManager.clearItems();
@@ -183,7 +194,7 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
         clusterManager.cluster();
 
         takeDataTask = null;
-    }
+    }*/
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -205,6 +216,15 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
             }
         }
 
+    }
+
+    @Override
+    protected void onPause() {
+        if (takeInfo != null){
+            takeInfo.interrupt();
+        }
+        MainHandler.getInstance().removeCallbacksAndMessages(null);
+        super.onPause();
     }
 
     @Override
@@ -266,5 +286,32 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
 
             clusterManager.addItem(marker);
         }
+    }
+
+    /*@Override
+    public void handleMessage(Message msg) {
+        if (DEBUG) {
+            Log.d(TAG, "handle message UI: ");
+        }
+
+        clusterManager.clearItems();
+        addItems((String) msg.obj);
+        clusterManager.cluster();
+
+        takeInfo = null;
+    }*/
+
+    @Override
+    public void onTaskCompleteCallBack(Message msg) {
+
+        if (DEBUG) {
+            Log.d(TAG, "handle message UI: ");
+        }
+
+        clusterManager.clearItems();
+        addItems((String) msg.obj);
+        clusterManager.cluster();
+
+        takeInfo = null;
     }
 }

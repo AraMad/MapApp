@@ -2,13 +2,16 @@ package mapapp.providers;
 
 import android.app.Activity;
 import android.os.AsyncTask;
+import android.os.Message;
 import android.util.Log;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 import mapapp.interfaces.PrivatAPIInterface;
+import mapapp.interfaces.TaskCompleteListener;
 import mapapp.managers.DataBaseManager;
+import mapapp.singletons.RetrofitClient;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -26,20 +29,16 @@ public class TakeDataTask extends AsyncTask<String, Void, String> {
 
     private WeakReference weakrefOnActivity;
     private DataBaseManager dataBaseManager;
-    private Retrofit client;
+    //private Retrofit client;
 
     public TakeDataTask(Activity activity){
         weakrefOnActivity = new WeakReference<>(activity);
 
-        client = new Retrofit.Builder()
+        /*client = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
-                .build();
-    }
-
-    public interface TaskCompleteListener {
-        void onTaskCompleteCallBack(String result);
+                .build();*/
     }
 
     @Override
@@ -70,7 +69,8 @@ public class TakeDataTask extends AsyncTask<String, Void, String> {
 
         String data = null;
 
-        PrivatAPIInterface service = client.create(PrivatAPIInterface.class);
+        PrivatAPIInterface service = RetrofitClient.getInstance()
+                .create(PrivatAPIInterface.class);
         Call<String> result = service.getATMInfo(city);
         try {
             data = result.execute().body();
@@ -87,7 +87,7 @@ public class TakeDataTask extends AsyncTask<String, Void, String> {
 
         if (result != null && weakrefOnActivity != null) {
             TaskCompleteListener callback = (TaskCompleteListener) weakrefOnActivity.get();
-            callback.onTaskCompleteCallBack(result);
+            //callback.onTaskCompleteCallBack(result);
         } else {
             Log.i(TAG, "onPostExecute: null");
         }
