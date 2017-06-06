@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import mapapp.MapApplication;
 import mapapp.R;
 
 import static mapapp.settings.Constants.DATABASE_CREATE_COMMAND;
@@ -25,11 +26,21 @@ public class DataBaseManager {
 
     private final String TAG = getClass().getSimpleName();
 
+    private static DataBaseManager dataBaseManager;
+
     private DataBaseHelper dataBaseHelper;
     private SQLiteDatabase dataBase;
 
-    public DataBaseManager(Context context){
+    private DataBaseManager(Context context){
         dataBaseHelper = new DataBaseHelper(context);
+    }
+
+    public static synchronized DataBaseManager getInstance(){
+        if (dataBaseManager == null){
+            dataBaseManager = new DataBaseManager(MapApplication.getMainContext());
+        }
+
+        return dataBaseManager;
     }
 
     public boolean openDataBase() {

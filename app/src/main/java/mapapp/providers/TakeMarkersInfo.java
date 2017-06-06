@@ -3,11 +3,9 @@ package mapapp.providers;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-import mapapp.MapApplication;
 import mapapp.interfaces.PrivatAPIInterface;
 import mapapp.interfaces.TaskCompleteListener;
 import mapapp.managers.DataBaseManager;
-import mapapp.singletons.ATMBaseManager;
 import mapapp.singletons.MainHandler;
 import mapapp.singletons.PrivatAPIClient;
 import retrofit2.Call;
@@ -33,16 +31,16 @@ public class TakeMarkersInfo extends Thread {
 
         String data;
 
-        if (ATMBaseManager.getInstance().openDataBase()){
-            data = ATMBaseManager.getInstance().getJSONStringByCityName(city);
+        if (DataBaseManager.getInstance().openDataBase()){
+            data = DataBaseManager.getInstance().getJSONStringByCityName(city);
             if (data == null) {
                 data = takeDataFromInternet(city);
-                ATMBaseManager.getInstance().addNewRowToBase(city, data);
+                DataBaseManager.getInstance().addNewRowToBase(city, data);
             }
         } else {
             data = takeDataFromInternet(city);
         }
-        ATMBaseManager.getInstance().closeDataBase();
+        DataBaseManager.getInstance().closeDataBase();
 
         if (data != null && weakReferenceOnListener != null) {
 
