@@ -16,5 +16,4 @@
 
     <string name="toast_internet_text">No Internet connection</string>
     <string name="toast_no_data_text">Sorry, no data</string>
-
 </resources>

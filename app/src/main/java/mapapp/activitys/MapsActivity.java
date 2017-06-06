@@ -15,11 +15,9 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,6 +39,7 @@ import mapapp.models.City;
 import mapapp.models.Marker;
 import mapapp.providers.TakeMarkersInfo;
 import mapapp.singletons.MainHandler;
+import mapapp.utils.MessageDisplayer;
 import mapapp.utils.NameCreator;
 import mapapp.utils.OwnDialogFragment;
 import mapapp.utils.OwnRendered;
@@ -67,6 +66,7 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
     private NetworkInfo activeNetwork;
     private FragmentManager manager;
     private String city;
+    private MessageDisplayer messageDisplayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +75,8 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
 
         city = "city";
+
+        messageDisplayer = new MessageDisplayer();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -97,13 +99,12 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
         activeNetwork = connectivityManager.getActiveNetworkInfo();
         if (activeNetwork == null || !activeNetwork.isConnected()) {
 
-            Snackbar.make(findViewById(R.id.map),
+            messageDisplayer.showSnackbarMessageWithAction(findViewById(R.id.map),
                     this.getString(R.string.snackbar_internet_text),
-                    Snackbar.LENGTH_LONG)
-                    .setAction("SETTINGS", (View v) ->
-                            startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS)))
-                    .setDuration(SNACKBAR_DURATION)
-                    .show();
+                    SNACKBAR_DURATION,
+                    this.getString(R.string.snackbar_button_text),
+                    (View v) ->
+                            startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS)));
         }
     }
 
@@ -171,8 +172,7 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
                 }
             }
         } else {
-            Toast.makeText(this, this.getString(R.string.toast_internet_text), Toast.LENGTH_SHORT)
-                    .show();
+            messageDisplayer.showToastMessage(this.getString(R.string.toast_internet_text));
         }
     }
 
@@ -186,13 +186,12 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 setUpLocationListener();
             } else {
-                Snackbar.make(findViewById(R.id.map),
+                messageDisplayer.showSnackbarMessageWithAction(findViewById(R.id.map),
                         getString(R.string.snackbar_permission_text),
-                        Snackbar.LENGTH_LONG)
-                        .setAction(getString(R.string.snackbar_button_text), (View v) ->
-                                startActivity(new Intent(Settings.ACTION_APPLICATION_SETTINGS)))
-                        .setDuration(SNACKBAR_DURATION)
-                        .show();
+                        SNACKBAR_DURATION,
+                        getString(R.string.snackbar_button_text),
+                        (View v) ->
+                                startActivity(new Intent(Settings.ACTION_APPLICATION_SETTINGS)));
             }
         }
 
@@ -256,8 +255,7 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
     private void addItems(String json_string) {
 
         if (json_string == null){
-            Toast.makeText(this, this.getString(R.string.toast_no_data_text), Toast.LENGTH_SHORT)
-                    .show();
+            messageDisplayer.showToastMessage(this.getString(R.string.toast_no_data_text));
             return;
         }
 
