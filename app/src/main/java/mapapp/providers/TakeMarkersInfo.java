@@ -7,6 +7,7 @@ import mapapp.MapApplication;
 import mapapp.interfaces.PrivatAPIInterface;
 import mapapp.interfaces.TaskCompleteListener;
 import mapapp.managers.DataBaseManager;
+import mapapp.singletons.ATMBaseManager;
 import mapapp.singletons.MainHandler;
 import mapapp.singletons.PrivatAPIClient;
 import retrofit2.Call;
@@ -30,19 +31,18 @@ public class TakeMarkersInfo extends Thread {
     @Override
     public void run() {
 
-        DataBaseManager dataBaseManager = new DataBaseManager(MapApplication.getMainContext());
         String data;
 
-        if (dataBaseManager.openDataBase()){
-            data = dataBaseManager.getJSONStringByCityName(city);
+        if (ATMBaseManager.getInstance().openDataBase()){
+            data = ATMBaseManager.getInstance().getJSONStringByCityName(city);
             if (data == null) {
                 data = takeDataFromInternet(city);
-                dataBaseManager.addNewRowToBase(city, data);
+                ATMBaseManager.getInstance().addNewRowToBase(city, data);
             }
         } else {
             data = takeDataFromInternet(city);
         }
-        dataBaseManager.closeDataBase();
+        ATMBaseManager.getInstance().closeDataBase();
 
         if (data != null && weakReferenceOnListener != null) {
 

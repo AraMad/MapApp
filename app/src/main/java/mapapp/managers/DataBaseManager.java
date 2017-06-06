@@ -25,13 +25,11 @@ public class DataBaseManager {
 
     private final String TAG = getClass().getSimpleName();
 
-    private final Context applicationContext;
     private DataBaseHelper dataBaseHelper;
     private SQLiteDatabase dataBase;
 
     public DataBaseManager(Context context){
-        applicationContext = context;
-        dataBaseHelper = new DataBaseHelper(applicationContext);
+        dataBaseHelper = new DataBaseHelper(context);
     }
 
     public boolean openDataBase() {
@@ -93,7 +91,7 @@ public class DataBaseManager {
 
     private class DataBaseHelper extends SQLiteOpenHelper {
 
-        public DataBaseHelper(Context context) {
+        DataBaseHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
         }
 
