@@ -20,7 +20,7 @@ public class TakeMarkersInfo extends Thread {
 
     private final String TAG = getClass().getSimpleName();
 
-    private WeakReference weakReferenceOnListener;
+    private WeakReference<TaskCompleteListener> weakReferenceOnListener;
     private String city;
 
     public TakeMarkersInfo(TaskCompleteListener listener, String city) {
@@ -48,8 +48,7 @@ public class TakeMarkersInfo extends Thread {
 
             final String result = data;
             MainHandler.getInstance().post(() ->
-                    ((TaskCompleteListener)
-                            weakReferenceOnListener.get()).onTaskCompleteCallBack(result));
+                    weakReferenceOnListener.get().onTaskCompleteCallBack(result));
         }
     }
 
