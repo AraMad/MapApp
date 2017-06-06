@@ -12,14 +12,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 
-import android.os.Message;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -47,7 +45,6 @@ import mapapp.utils.NameCreator;
 import mapapp.utils.OwnDialogFragment;
 import mapapp.utils.OwnRendered;
 import mapapp.R;
-import mapapp.providers.TakeDataTask;
 
 import static mapapp.BuildConfig.DEBUG;
 import static mapapp.settings.Constants.FRAGMENT_GPS_TAG;
@@ -60,12 +57,11 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
 
     private final String TAG = getClass().getSimpleName();
 
-    private final int LOCATION_PERMISSIONS_REQUEST_CODE_LOCATION = 0;
+    private final int LOCATION_PERMISSIONS_REQUEST_CODE = 0;
 
     private GoogleMap map;
     private ClusterManager<Marker> clusterManager;
     private LocationManager locationManager;
-    private TakeDataTask takeDataTask;
     private TakeMarkersInfo takeInfo;
     private ConnectivityManager connectivityManager;
     private NetworkInfo activeNetwork;
@@ -144,7 +140,6 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
     public void onCameraIdle() {
 
         CameraPosition cameraPosition = map.getCameraPosition();
-
         NameCreator nameCreator = new NameCreator();
 
         activeNetwork = connectivityManager.getActiveNetworkInfo();
@@ -158,22 +153,17 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
                     List<Address> addresses = geoCoder
                             .getFromLocation(cameraPosition.target.latitude,
                                     cameraPosition.target.longitude, 5);
-                    try {
-                        if (addresses.get(0).getLocality() != null && !addresses.get(0).getLocality().equals(city)){
-                            city = addresses.get(0).getLocality();
 
-                            //takeDataTask = new TakeDataTask(this);
-                            //takeDataTask.execute(nameCreator.takeCityName(addresses.get(0).getLocality()));
+                    if (addresses.get(0).getLocality() != null && !addresses.get(0).getLocality().equals(city)){
 
-                            takeInfo = new TakeMarkersInfo(this, nameCreator
-                                    .takeCityName(addresses.get(0).getLocality()));
-                            takeInfo.start();
+                        city = addresses.get(0).getLocality();
 
-                        } else {
-                            clusterManager.cluster();
-                        }
-                    } catch (Exception e){
-                        e.printStackTrace();
+                        takeInfo = new TakeMarkersInfo(this, nameCreator
+                                .takeCityName(addresses.get(0).getLocality()));
+                        takeInfo.start();
+
+                    } else {
+                        clusterManager.cluster();
                     }
                 }
                 catch (IOException e) {
@@ -186,22 +176,12 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
         }
     }
 
-    /*@Override
-    public void onTaskCompleteCallBack(String result) {
-
-        clusterManager.clearItems();
-        addItems(result);
-        clusterManager.cluster();
-
-        takeDataTask = null;
-    }*/
-
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
 
-        if (requestCode == LOCATION_PERMISSIONS_REQUEST_CODE_LOCATION){
+        if (requestCode == LOCATION_PERMISSIONS_REQUEST_CODE){
             if (grantResults.length != 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 setUpLocationListener();
@@ -251,7 +231,7 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    LOCATION_PERMISSIONS_REQUEST_CODE_LOCATION);
+                    LOCATION_PERMISSIONS_REQUEST_CODE);
         }
     }
 
@@ -275,6 +255,12 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
 
     private void addItems(String json_string) {
 
+        if (json_string == null){
+            Toast.makeText(this, this.getString(R.string.toast_no_data_text), Toast.LENGTH_SHORT)
+                    .show();
+            return;
+        }
+
         Gson gson = (new GsonBuilder()).create();
         City city = gson.fromJson(json_string, City.class);
 
@@ -288,28 +274,11 @@ public class MapsActivity extends BasicGeoActivity implements OnMapReadyCallback
         }
     }
 
-    /*@Override
-    public void handleMessage(Message msg) {
-        if (DEBUG) {
-            Log.d(TAG, "handle message UI: ");
-        }
-
-        clusterManager.clearItems();
-        addItems((String) msg.obj);
-        clusterManager.cluster();
-
-        takeInfo = null;
-    }*/
-
     @Override
-    public void onTaskCompleteCallBack(Message msg) {
-
-        if (DEBUG) {
-            Log.d(TAG, "handle message UI: ");
-        }
+    public void onTaskCompleteCallBack(String result) {
 
         clusterManager.clearItems();
-        addItems((String) msg.obj);
+        addItems(result);
         clusterManager.cluster();
 
         takeInfo = null;

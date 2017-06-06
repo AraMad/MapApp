@@ -1,16 +1,14 @@
 package mapapp.providers;
 
-import android.app.Activity;
-import android.os.Message;
-
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
+import mapapp.MapApplication;
 import mapapp.interfaces.PrivatAPIInterface;
 import mapapp.interfaces.TaskCompleteListener;
 import mapapp.managers.DataBaseManager;
 import mapapp.singletons.MainHandler;
-import mapapp.singletons.RetrofitClient;
+import mapapp.singletons.PrivatAPIClient;
 import retrofit2.Call;
 
 /**
@@ -19,23 +17,24 @@ import retrofit2.Call;
 
 public class TakeMarkersInfo extends Thread {
 
-    private WeakReference weakrefOnActivity;
-    private DataBaseManager dataBaseManager;
+    private final String TAG = getClass().getSimpleName();
 
+    private WeakReference weakReferenceOnListener;
     private String city;
 
-    public TakeMarkersInfo(Activity activity, String city) {
-        weakrefOnActivity = new WeakReference<>(activity);
-        dataBaseManager = new DataBaseManager((Activity) weakrefOnActivity.get());
+    public TakeMarkersInfo(TaskCompleteListener listener, String city) {
+        weakReferenceOnListener = new WeakReference<>(listener);
         this.city = city;
     }
 
     @Override
     public void run() {
+
+        DataBaseManager dataBaseManager = new DataBaseManager(MapApplication.getMainContext());
         String data;
 
         if (dataBaseManager.openDataBase()){
-            data = takeDataFromBase(city);
+            data = dataBaseManager.getJSONStringByCityName(city);
             if (data == null) {
                 data = takeDataFromInternet(city);
                 dataBaseManager.addNewRowToBase(city, data);
@@ -45,30 +44,20 @@ public class TakeMarkersInfo extends Thread {
         }
         dataBaseManager.closeDataBase();
 
-        if (data != null && weakrefOnActivity != null) {
-            final Message message = new Message();
-            message.obj = data;
-            //MainHandler.getInstance().sendMessage(message);
+        if (data != null && weakReferenceOnListener != null) {
 
-            TaskCompleteListener callback = (TaskCompleteListener)
-                    weakrefOnActivity.get();
-
-            MainHandler.getInstance().post(() -> {
-                callback.onTaskCompleteCallBack(message);
-                });
+            final String result = data;
+            MainHandler.getInstance().post(() ->
+                    ((TaskCompleteListener)
+                            weakReferenceOnListener.get()).onTaskCompleteCallBack(result));
         }
-        //TODO: add message to main Handler
-    }
-
-    private String takeDataFromBase(String city){
-        return  dataBaseManager.getJSONStringByCityName(city);
     }
 
     private String takeDataFromInternet(String city){
 
         String data = null;
 
-        PrivatAPIInterface service = RetrofitClient.getInstance()
+        PrivatAPIInterface service = PrivatAPIClient.getInstance()
                 .create(PrivatAPIInterface.class);
         Call<String> result = service.getATMInfo(city);
         try {

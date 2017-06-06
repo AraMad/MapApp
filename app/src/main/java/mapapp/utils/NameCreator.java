@@ -105,7 +105,7 @@ public class NameCreator {
             } else if (name.equals("Zaporizhia")){
                 return "Zaporizhzhia";
             }
-            return name;
+            return name.replace("’", "");
         }
         return transliterate(name);
     }
